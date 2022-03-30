@@ -1,6 +1,8 @@
 package kg.itschool.crm.dao.impl;
 
 import kg.itschool.crm.dao.GroupDao;
+import kg.itschool.crm.model.Course;
+import kg.itschool.crm.model.CourseFormat;
 import kg.itschool.crm.model.Group;
 
 import java.sql.*;
@@ -29,7 +31,7 @@ public class GroupDaoImpl implements GroupDao {
                     "CONSTRAINT fk_course_id FOREIGN KEY (course_id) " +
                     "   REFERENCES tb_courses (id), " +
                     "CONSTRAINT fk_mentor_id FOREIGN KEY (mentor_id) " +
-                    "   REFERENCES tb_mentor (id)" +
+                    "   REFERENCES tb_mentors (id)" +
                     ");";
 
             System.out.println("Creating statement...");
@@ -54,6 +56,9 @@ public class GroupDaoImpl implements GroupDao {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         Group savedGroup = null;
+        Course savedCourse = null;
+        CourseFormat savedCourseFormat = null;
+
 
         try {
             System.out.println("Connecting to database...");
@@ -98,11 +103,32 @@ public class GroupDaoImpl implements GroupDao {
 
             resultSet.next();
 
+
+            savedCourseFormat =  new CourseFormat();
+            savedCourseFormat.setId(resultSet.getLong("format_id"));
+            savedCourseFormat.setFormat(resultSet.getString("f.course_format"));
+            savedCourseFormat.setLessonDuration(resultSet.getTime("f.lesson_duration").toLocalTime());
+            savedCourseFormat.setOnline(resultSet.getBoolean("f.is_online"));
+            savedCourseFormat.setDateCreated(resultSet.getTimestamp("f.date_created").toLocalDateTime());
+            savedCourseFormat.setCourseDurationWeeks(resultSet.getInt("f.course_duration_weeks"));
+            savedCourseFormat.setLessonsPerWeek(resultSet.getInt("f.lessons_per_week"));
+
+
+            savedCourse = new Course();
+            savedCourse.setId(resultSet.getLong("course_id"));
+            savedCourse.setPrice(Double.parseDouble(resultSet.getString("c.price")));
+            savedCourse.setName(resultSet.getString("c.name"));
+            savedCourse.setDateCreated(resultSet.getTimestamp("c.date_created").toLocalDateTime());
+            savedCourse.setCourseFormat(savedCourseFormat);
+
+
+
             savedGroup = new Group();
             savedGroup.setId(resultSet.getLong("id"));
             savedGroup.setName(resultSet.getString("name"));
             savedGroup.setGroupTime(LocalTime.parse(resultSet.getString("group_time")));
             savedGroup.setDateCreated(resultSet.getTimestamp("date_created").toLocalDateTime());
+            savedGroup.setCourse(savedCourse);
 
         } catch (SQLException e) {
             e.printStackTrace();

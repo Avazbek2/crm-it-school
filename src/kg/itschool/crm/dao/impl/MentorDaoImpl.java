@@ -19,7 +19,7 @@ public class MentorDaoImpl implements MentorDao {
             String ddlQuery = "CREATE TABLE IF NOT EXISTS tb_mentors(" +
                     "id           BIGSERIAL, " +
                     "first_name   VARCHAR(50)  NOT NULL, " +
-                    "last_name     VARCHAR(50)  NOT NULL, " +
+                    "last_name    VARCHAR(50)  NOT NULL, " +
                     "email        VARCHAR(100) NOT NULL UNIQUE, " +
                     "phone_number CHAR(13)     NOT NULL, " +
                     "salary       MONEY        NOT NULL, " +
