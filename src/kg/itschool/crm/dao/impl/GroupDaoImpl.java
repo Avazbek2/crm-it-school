@@ -4,6 +4,7 @@ import kg.itschool.crm.dao.GroupDao;
 import kg.itschool.crm.model.Course;
 import kg.itschool.crm.model.CourseFormat;
 import kg.itschool.crm.model.Group;
+import kg.itschool.crm.model.Mentor;
 
 import java.sql.*;
 import java.time.LocalTime;
@@ -58,6 +59,7 @@ public class GroupDaoImpl implements GroupDao {
         Group savedGroup = null;
         Course savedCourse = null;
         CourseFormat savedCourseFormat = null;
+        Mentor savedMentor = null;
 
 
         try {
@@ -80,6 +82,9 @@ public class GroupDaoImpl implements GroupDao {
             preparedStatement.execute();
             close(preparedStatement);
 
+
+
+
             String subQuery = "SELECT c.id AS course_id, c.name, c.price, c.date_created, " +
                     "f.id AS format_id, f.course_format, f.course_duration_weeks, f.lesson_duration, " +
                     "f.lessons_per_week, f.is_online, f.date_created AS format_dc " +
@@ -89,7 +94,9 @@ public class GroupDaoImpl implements GroupDao {
 
             String readQuery = "" +
                     "SELECT g.id AS group_id, g.name, g.group_time, " +
-                    "g.date_created AS group_dc, g.course_id, g.mentor_id " +
+                    "g.date_created AS group_dc, g.course_id, g.mentor_id, " +
+                    "m.id, m.first_name, m.last_name, m.email, m.phone_number" +
+                    "m.salary, m.dob, m.date_created " +
                     "FROM tb_groups AS g " +
                     "JOIN (" + subQuery + " WHERE course_id = g.course_id) AS c " +
                     "ON g.course_id = c.id " +
@@ -102,6 +109,16 @@ public class GroupDaoImpl implements GroupDao {
             resultSet = preparedStatement.executeQuery();
 
             resultSet.next();
+
+            savedMentor = new Mentor();
+            savedMentor.setId(resultSet.getLong("m.id"));
+            savedMentor.setFirstName(resultSet.getString("m.first_name"));
+            savedMentor.setLastName(resultSet.getString("m.last_name"));
+            savedMentor.setEmail(resultSet.getString("m.email"));
+            savedMentor.setPhoneNumber(resultSet.getString("m.phone_number"));
+            savedMentor.setSalary(Double.parseDouble(resultSet.getString("m.salary")));
+            savedMentor.setDob(resultSet.getDate("m.dob").toLocalDate());
+            savedMentor.setDateCreated(resultSet.getTimestamp("m.date_created").toLocalDateTime());
 
 
             savedCourseFormat =  new CourseFormat();
@@ -129,6 +146,7 @@ public class GroupDaoImpl implements GroupDao {
             savedGroup.setGroupTime(LocalTime.parse(resultSet.getString("group_time")));
             savedGroup.setDateCreated(resultSet.getTimestamp("date_created").toLocalDateTime());
             savedGroup.setCourse(savedCourse);
+            savedGroup.setMentor(savedMentor);
 
         } catch (SQLException e) {
             e.printStackTrace();

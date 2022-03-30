@@ -51,6 +51,7 @@ public class Main {
         sqlCourse.setPrice(10000);
         sqlCourse.setCourseFormat(ordinaryFormat);
 
+
         System.out.println(javaCourse);
         System.out.println(pythonCourse);
         System.out.println(jsCourse);
