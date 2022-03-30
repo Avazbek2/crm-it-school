@@ -163,12 +163,32 @@ public class GroupDaoImpl implements GroupDao {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        Group group = null;
-
+        Group savedGroup = null;
+        Mentor savedMentor = null;
+        CourseFormat savedCourseFormat = null;
+        Course savedCourse = null;
         try {
             connection = getConnection();
 
-            String readQuery = "SELECT * FROM tb_groups WHERE id = ?";
+            String subQuery = "SELECT c.id AS course_id, c.name, c.price, c.date_created, " +
+                    "f.id AS format_id, f.course_format, f.course_duration_weeks, f.lesson_duration, " +
+                    "f.lessons_per_week, f.is_online, f.date_created AS format_dc " +
+                    "FROM tb_course AS c " +
+                    "JOIN tb_course_format AS f " +
+                    "ON c.course_format_id = f.id";
+
+            String readQuery = "" +
+                    "SELECT g.id AS group_id, g.name, g.group_time, " +
+                    "g.date_created AS group_dc, g.course_id, g.mentor_id, " +
+                    "m.id, m.first_name, m.last_name, m.email, m.phone_number" +
+                    "m.salary, m.dob, m.date_created " +
+                    "FROM tb_groups AS g " +
+                    "JOIN (" + subQuery + " WHERE course_id = g.course_id) AS c " +
+                    "ON g.course_id = c.id " +
+                    "JOIN tb_mentor AS m " +
+                    "ON g.mentor_id = m.id " +
+                    "ORDER BY g.id WHERE g.id = ? ";
+                    
 
             preparedStatement = connection.prepareStatement(readQuery);
             preparedStatement.setLong(1, id);
@@ -176,11 +196,43 @@ public class GroupDaoImpl implements GroupDao {
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
 
-            group = new Group();
-            group.setId(resultSet.getLong("id"));
-            group.setName(resultSet.getString("name"));
-            group.setGroupTime(LocalTime.parse(resultSet.getString("group_time")));
-            group.setDateCreated(resultSet.getTimestamp("date_created").toLocalDateTime());
+            savedMentor = new Mentor();
+            savedMentor.setId(resultSet.getLong("m.id"));
+            savedMentor.setFirstName(resultSet.getString("m.first_name"));
+            savedMentor.setLastName(resultSet.getString("m.last_name"));
+            savedMentor.setEmail(resultSet.getString("m.email"));
+            savedMentor.setPhoneNumber(resultSet.getString("m.phone_number"));
+            savedMentor.setSalary(Double.parseDouble(resultSet.getString("m.salary")));
+            savedMentor.setDob(resultSet.getDate("m.dob").toLocalDate());
+            savedMentor.setDateCreated(resultSet.getTimestamp("m.date_created").toLocalDateTime());
+
+
+            savedCourseFormat =  new CourseFormat();
+            savedCourseFormat.setId(resultSet.getLong("format_id"));
+            savedCourseFormat.setFormat(resultSet.getString("f.course_format"));
+            savedCourseFormat.setLessonDuration(resultSet.getTime("f.lesson_duration").toLocalTime());
+            savedCourseFormat.setOnline(resultSet.getBoolean("f.is_online"));
+            savedCourseFormat.setDateCreated(resultSet.getTimestamp("f.date_created").toLocalDateTime());
+            savedCourseFormat.setCourseDurationWeeks(resultSet.getInt("f.course_duration_weeks"));
+            savedCourseFormat.setLessonsPerWeek(resultSet.getInt("f.lessons_per_week"));
+
+
+            savedCourse = new Course();
+            savedCourse.setId(resultSet.getLong("course_id"));
+            savedCourse.setPrice(Double.parseDouble(resultSet.getString("c.price")));
+            savedCourse.setName(resultSet.getString("c.name"));
+            savedCourse.setDateCreated(resultSet.getTimestamp("c.date_created").toLocalDateTime());
+            savedCourse.setCourseFormat(savedCourseFormat);
+
+
+
+            savedGroup = new Group();
+            savedGroup.setId(resultSet.getLong("id"));
+            savedGroup.setName(resultSet.getString("name"));
+            savedGroup.setGroupTime(LocalTime.parse(resultSet.getString("group_time")));
+            savedGroup.setDateCreated(resultSet.getTimestamp("date_created").toLocalDateTime());
+            savedGroup.setCourse(savedCourse);
+            savedGroup.setMentor(savedMentor);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -189,6 +241,6 @@ public class GroupDaoImpl implements GroupDao {
             close(preparedStatement);
             close(connection);
         }
-        return group;
+        return savedGroup;
     }
 }
