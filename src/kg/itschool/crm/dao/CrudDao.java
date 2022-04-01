@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public interface CrudDao<Model> {
-    Model save(Model model);
+    Model save(Model model) throws SQLException;
     Model findById(Long id);
 
     default Connection getConnection() throws SQLException {

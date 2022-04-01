@@ -188,7 +188,7 @@ public class GroupDaoImpl implements GroupDao {
                     "JOIN tb_mentor AS m " +
                     "ON g.mentor_id = m.id " +
                     "ORDER BY g.id WHERE g.id = ? ";
-                    
+
 
             preparedStatement = connection.prepareStatement(readQuery);
             preparedStatement.setLong(1, id);

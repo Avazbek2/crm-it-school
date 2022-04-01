@@ -1,10 +1,7 @@
 package kg.itschool.crm;
 
-import kg.itschool.crm.dao.ManagerDao;
-import kg.itschool.crm.dao.daoutil.DaoFactory;
 import kg.itschool.crm.model.Course;
 import kg.itschool.crm.model.CourseFormat;
-import kg.itschool.crm.model.Manager;
 
 import java.time.LocalTime;
 

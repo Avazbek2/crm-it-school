@@ -65,7 +65,7 @@ public class CourseDaoImpl implements CourseDao {
             preparedStatement = connection.prepareStatement(createQuery);
             preparedStatement.setString(1, course.getName());
             preparedStatement.setString(2, String.valueOf(course.getPrice()));
-            preparedStatement.setTimestamp(3, Timestamp.valueOf(course.getDateCreated()));
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(String.valueOf(course.getDateCreated())));
             preparedStatement.setLong(4, course.getId());
 
             preparedStatement.execute();
@@ -131,12 +131,22 @@ public class CourseDaoImpl implements CourseDao {
             resultSet = preparedStatement.executeQuery();
             resultSet.next();
 
+            CourseFormat courseFormat = new CourseFormat();
+            courseFormat.setId(resultSet.getLong("f.id"));
+            courseFormat.setFormat(resultSet.getString("course_format"));
+            courseFormat.setOnline(resultSet.getBoolean("is_online"));
+            courseFormat.setLessonDuration(resultSet.getTime("lesson_duration").toLocalTime());
+            courseFormat.setCourseDurationWeeks(resultSet.getInt("course_duration_weeks"));
+            courseFormat.setDateCreated(resultSet.getTimestamp("date_created").toLocalDateTime());
+            courseFormat.setLessonsPerWeek(resultSet.getInt("lessons_per_week"));
+
             course = new Course();
             course.setId(resultSet.getLong("id"));
             course.setName(resultSet.getString("name"));
             course.setPrice(Double.parseDouble(resultSet.getString("price")));
             course.setDateCreated(resultSet.getTimestamp("date_created").toLocalDateTime());
-            CourseFormat courseFormat = new CourseFormat();
+            course.setCourseFormat(courseFormat);
+
 
         } catch (SQLException e) {
             e.printStackTrace();

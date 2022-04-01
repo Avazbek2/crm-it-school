@@ -1,5 +1,6 @@
 package kg.itschool.crm.model;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 public final class Address extends BaseEntity {
@@ -25,7 +26,7 @@ public final class Address extends BaseEntity {
         this.apartment = apartment;
     }
 
-    public LocalDateTime getDateCreated() {
+    public Date getDateCreated() {
         return dateCreated;
     }
 

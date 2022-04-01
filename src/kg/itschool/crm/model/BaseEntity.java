@@ -1,5 +1,6 @@
 package kg.itschool.crm.model;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 abstract class BaseEntity {
@@ -24,7 +25,7 @@ abstract class BaseEntity {
         this.id = id;
     }
 
-    public LocalDateTime getDateCreated() {
+    public Date getDateCreated() {
         return dateCreated;
     }
 

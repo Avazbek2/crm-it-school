@@ -7,6 +7,7 @@ import kg.itschool.crm.model.CourseFormat;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class CourseFormatDaoImpl implements CourseFormatDao {
 
@@ -47,8 +48,41 @@ public class CourseFormatDaoImpl implements CourseFormatDao {
     }
 
     @Override
-    public CourseFormat save(CourseFormat courseFormat) {
-        return null;
+    public CourseFormat save(CourseFormat courseFormat) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try{
+            System.out.println("Connecting to database...");
+            connection = getConnection();
+            System.out.println("Connection succeeded.");
+
+            String createQuery = "INSERT INTO tb_groups(" +
+                    "course_format, course_duration , is_online, date_created) " +
+
+                    "VALUES(?, ?, ?, ?)";
+
+
+            preparedStatement = connection.prepareStatement(createQuery);
+            preparedStatement.setString(1 , courseFormat.getFormat());
+            preparedStatement.setInt(2, courseFormat.getCourseDurationWeeks());
+            preparedStatement.setBoolean(3, courseFormat.isOnline());
+            preparedStatement.setDate(4 , courseFormat.getDateCreated());
+
+            preparedStatement.execute(createQuery);
+
+
+
+
+        }catch(SQLException e){
+            e.printStackTrace();
+
+        }final {
+            close(resultSet);
+            close(preparedStatement);
+            close(connection);
+
+        }
     }
 
     @Override
